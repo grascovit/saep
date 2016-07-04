@@ -1,0 +1,3 @@
+# Ignora arquivos do IntelliJ
+.idea/
+*.iml

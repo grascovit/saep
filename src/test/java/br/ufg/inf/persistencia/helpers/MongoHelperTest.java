@@ -14,6 +14,7 @@ public class MongoHelperTest {
     public void garanteUnicidadeIdentificadorParecer() {
        assertTrue(MongoHelper.garanteExistenciaIndice(COLECAO_PARECER, IDENTIFICADOR_UNICO));
     }
+
     @Test
     public void garanteUnicidadeIdentificadorResolucao() {
        assertTrue(MongoHelper.garanteExistenciaIndice(COLECAO_RESOLUCAO, IDENTIFICADOR_UNICO));

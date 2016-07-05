@@ -1,11 +1,12 @@
 package br.ufg.inf.persistencia.helpers;
 
 import br.ufg.inf.es.saep.sandbox.dominio.IdentificadorDesconhecido;
-import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
 import org.bson.Document;
 
 public class MongoHelper {
@@ -24,7 +25,9 @@ public class MongoHelper {
     }
 
     static Boolean garanteExistenciaIndice(String nomeColecao, String nomeIndice) {
-        String indice = getBancoDadosMongo(NOME_BANCO_DADOS).getCollection(nomeColecao).createIndex(new Document(nomeIndice, 1));
+        String indice = getBancoDadosMongo(NOME_BANCO_DADOS)
+		        .getCollection(nomeColecao)
+		        .createIndex(new Document(nomeIndice, 1), new IndexOptions().unique(true));
         return indice != null;
     }
 
@@ -32,7 +35,7 @@ public class MongoHelper {
         MongoCollection<Document> collection = getColecao(nomeColecao);
         try {
             collection.insertOne(documentoMongo);
-        } catch (DuplicateKeyException identificadorDuplicado) {
+        } catch (MongoWriteException identificadorDuplicado) {
             System.out.println("Já existe na coleção um documento com o identificador do documento informado");
         }
     }

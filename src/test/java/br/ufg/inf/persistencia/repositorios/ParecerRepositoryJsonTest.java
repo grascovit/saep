@@ -4,14 +4,18 @@ import br.ufg.inf.es.saep.sandbox.dominio.Nota;
 import br.ufg.inf.es.saep.sandbox.dominio.Parecer;
 import br.ufg.inf.es.saep.sandbox.dominio.Pontuacao;
 import br.ufg.inf.es.saep.sandbox.dominio.Valor;
+import com.mongodb.MongoWriteException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
+
 public class ParecerRepositoryJsonTest {
 
     private ParecerRepositoryJson parecerRepositoryJson;
+	private static final String IDENTIFICADOR_PARECER_TESTE = "idTeste";
 
     @Before
     public void setUp() {
@@ -31,8 +35,16 @@ public class ParecerRepositoryJsonTest {
     @Test
     public void persisteParecer() {
         Parecer parecer = obtenhaParecer();
-        parecerRepositoryJson.persisteParecer(parecer);
+	    parecerRepositoryJson.persisteParecer(parecer);
+	    Parecer parecerPersistido = parecerRepositoryJson.byId(IDENTIFICADOR_PARECER_TESTE);
+	    assertEquals("O parecer foi persistido e o id do objeto recuperado do banco é igual ao esperado", IDENTIFICADOR_PARECER_TESTE, parecerPersistido.getId());
     }
+
+	@Test
+	public void persisteParecerFalhaPoisIdJaExisteNoBanco() throws MongoWriteException {
+		Parecer parecer = obtenhaParecer();
+		parecerRepositoryJson.persisteParecer(parecer);
+	}
 
     @Test
     public void atualizaFundamentacao() {
@@ -41,8 +53,8 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void byId() {
-        String identificador = "266955b4-73fa-4fad-9727-9a0a6fae42ee";
-        parecerRepositoryJson.byId(identificador);
+        Parecer parecer = parecerRepositoryJson.byId(IDENTIFICADOR_PARECER_TESTE);
+	    assertEquals("O id do objeto recuperado do banco é igual ao esperado", IDENTIFICADOR_PARECER_TESTE, parecer.getId());
     }
 
     @Test
@@ -66,14 +78,13 @@ public class ParecerRepositoryJsonTest {
     }
 
     private Parecer obtenhaParecer() {
-        Parecer parecer = new Parecer();
-        ArrayList<String> radocs = new ArrayList<String>();
-        radocs.add("idRadoc");
-        ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
-        pontuacoes.add(new Pontuacao("fatorCargaHoraria", new Valor(5.0f)));
-        ArrayList<Nota> notas = new ArrayList<Nota>();
-        notas.add(new Nota(new Pontuacao("pontuacaoAntiga", new Valor(1.0f)), new Pontuacao("pontuacaoNova", new Valor(10.0f)), "Justificativa para a nota"));
-        return new Parecer(parecer.getId(), "idDaResolucao", radocs, pontuacoes, "Fundamentação de exemplo com caractéres Unicode", notas);
+	    ArrayList<String> radocs = new ArrayList<String>();
+	    radocs.add("idRadoc");
+	    ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
+	    pontuacoes.add(new Pontuacao("fatorCargaHoraria", new Valor(5.0f)));
+	    ArrayList<Nota> notas = new ArrayList<Nota>();
+	    notas.add(new Nota(new Pontuacao("pontuacaoAntiga", new Valor(1.0f)), new Pontuacao("pontuacaoNova", new Valor(10.0f)), "Justificativa para a nota"));
+	    return new Parecer(IDENTIFICADOR_PARECER_TESTE, "idDaResolucao", radocs, pontuacoes, "Fundamentação de exemplo com caractéres Unicode", notas);
     }
 
 }

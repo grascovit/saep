@@ -42,10 +42,11 @@ public class MongoHelper {
 
     public static Document recuperaDocumentoMongoPeloIdentificador(String nomeColecao, String identificador) {
         FindIterable<Document> resultados = getColecao(nomeColecao).find(new Document(IDENTIFICADOR_UNICO, identificador));
-        if (resultados == null) {
+        Document documentoRecuperado = resultados.first();
+        if (documentoRecuperado == null) {
             throw new IdentificadorDesconhecido("Não há documento na coleção " + nomeColecao + " com o identificador " + identificador);
         } else {
-            return resultados.first();
+            return documentoRecuperado;
         }
     }
 

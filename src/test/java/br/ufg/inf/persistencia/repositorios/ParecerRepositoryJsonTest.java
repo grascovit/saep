@@ -1,9 +1,6 @@
 package br.ufg.inf.persistencia.repositorios;
 
-import br.ufg.inf.es.saep.sandbox.dominio.Nota;
-import br.ufg.inf.es.saep.sandbox.dominio.Parecer;
-import br.ufg.inf.es.saep.sandbox.dominio.Pontuacao;
-import br.ufg.inf.es.saep.sandbox.dominio.Valor;
+import br.ufg.inf.es.saep.sandbox.dominio.*;
 import com.mongodb.MongoWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +52,11 @@ public class ParecerRepositoryJsonTest {
     public void byId() {
         Parecer parecer = parecerRepositoryJson.byId(IDENTIFICADOR_PARECER_TESTE);
 	    assertEquals("O id do objeto recuperado do banco é igual ao esperado", IDENTIFICADOR_PARECER_TESTE, parecer.getId());
+    }
+
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void byIdLancaExcecaoPoisNaoEncontrouParecer() {
+        parecerRepositoryJson.byId("identificadorIncorreto");
     }
 
     @Test

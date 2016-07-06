@@ -1,18 +1,18 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
-import com.mongodb.MongoWriteException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ParecerRepositoryJsonTest {
 
     private ParecerRepositoryJson parecerRepositoryJson;
-	private static final String IDENTIFICADOR_PARECER_TESTE = "idTeste";
 
     @Before
     public void setUp() {
@@ -31,32 +31,52 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void persisteParecer() {
-        Parecer parecer = obtenhaParecer();
+        String id = obtenhaIdAleatorio();
+        Parecer parecer = obtenhaParecer(id);
 	    parecerRepositoryJson.persisteParecer(parecer);
-	    Parecer parecerPersistido = parecerRepositoryJson.byId(IDENTIFICADOR_PARECER_TESTE);
-	    assertEquals("O parecer foi persistido e o id do objeto recuperado do banco é igual ao esperado", IDENTIFICADOR_PARECER_TESTE, parecerPersistido.getId());
+	    Parecer parecerPersistido = parecerRepositoryJson.byId(id);
+	    assertEquals("O parecer foi persistido e o id do objeto recuperado do banco é igual ao esperado", id, parecerPersistido.getId());
     }
 
-	@Test
-	public void persisteParecerFalhaPoisIdJaExisteNoBanco() throws MongoWriteException {
-		Parecer parecer = obtenhaParecer();
-		parecerRepositoryJson.persisteParecer(parecer);
+	@Test(expected = IdentificadorDesconhecido.class)
+	public void persisteParecerFalhaPoisIdJaExisteNoBanco() {
+        String id = obtenhaIdAleatorio();
+		Parecer parecer = obtenhaParecer(id);
+        parecerRepositoryJson.persisteParecer(parecer);
+        parecerRepositoryJson.persisteParecer(parecer);
 	}
 
     @Test
     public void atualizaFundamentacao() {
+        String id = obtenhaIdAleatorio();
+        Parecer parecer = obtenhaParecer(id);
+        parecerRepositoryJson.persisteParecer(parecer);
+        String novaFundamentacao = "Nova fundamentação";
+        parecerRepositoryJson.atualizaFundamentacao(id, novaFundamentacao);
+        parecer = parecerRepositoryJson.byId(id);
+        assertEquals("A fundamentação foi atualizada com sucesso", novaFundamentacao, parecer.getFundamentacao());
+    }
 
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void atualizaFundamentacaoFalhaPoisParecerNaoEstaPersistido() {
+        parecerRepositoryJson.atualizaFundamentacao(obtenhaIdAleatorio(), "Nova fundamentação");
     }
 
     @Test
     public void byId() {
-        Parecer parecer = parecerRepositoryJson.byId(IDENTIFICADOR_PARECER_TESTE);
-	    assertEquals("O id do objeto recuperado do banco é igual ao esperado", IDENTIFICADOR_PARECER_TESTE, parecer.getId());
+        String id = obtenhaIdAleatorio();
+        Parecer parecer = obtenhaParecer(id);
+        parecerRepositoryJson.persisteParecer(parecer);
+        parecer = parecerRepositoryJson.byId(id);
+	    assertEquals("O id do objeto recuperado do banco é igual ao esperado", id, parecer.getId());
     }
 
-    @Test(expected = IdentificadorDesconhecido.class)
-    public void byIdLancaExcecaoPoisNaoEncontrouParecer() {
-        parecerRepositoryJson.byId("identificadorIncorreto");
+    @Test
+    public void byIdNaoEncontraParecerComOutroIdentificador() {
+        String id = obtenhaIdAleatorio();
+        Parecer parecer = obtenhaParecer(id);
+        parecerRepositoryJson.persisteParecer(parecer);
+        assertNull(parecerRepositoryJson.byId(obtenhaIdAleatorio()));
     }
 
     @Test
@@ -79,14 +99,18 @@ public class ParecerRepositoryJsonTest {
 
     }
 
-    private Parecer obtenhaParecer() {
+    private Parecer obtenhaParecer(String id) {
 	    ArrayList<String> radocs = new ArrayList<String>();
 	    radocs.add("idRadoc");
 	    ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
 	    pontuacoes.add(new Pontuacao("fatorCargaHoraria", new Valor(5.0f)));
 	    ArrayList<Nota> notas = new ArrayList<Nota>();
 	    notas.add(new Nota(new Pontuacao("pontuacaoAntiga", new Valor(1.0f)), new Pontuacao("pontuacaoNova", new Valor(10.0f)), "Justificativa para a nota"));
-	    return new Parecer(IDENTIFICADOR_PARECER_TESTE, "idDaResolucao", radocs, pontuacoes, "Fundamentação de exemplo com caractéres Unicode", notas);
+	    return new Parecer(id, "idDaResolucao", radocs, pontuacoes, "Fundamentação de exemplo com caractéres Unicode", notas);
     }
 
+    private String obtenhaIdAleatorio() {
+        return UUID.randomUUID().toString();
+    }
+    
 }

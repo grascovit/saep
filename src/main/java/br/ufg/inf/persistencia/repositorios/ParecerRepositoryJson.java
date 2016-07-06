@@ -3,12 +3,12 @@ package br.ufg.inf.persistencia.repositorios;
 import br.ufg.inf.es.saep.sandbox.dominio.*;
 import br.ufg.inf.persistencia.helpers.GsonHelper;
 import br.ufg.inf.persistencia.helpers.MongoHelper;
-import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
 public class ParecerRepositoryJson implements ParecerRepository {
 
     private static final String COLECAO_PARECER = "parecer";
+    private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
     private static final String IDENTIFICADOR_UNICO = "id";
 
     public void adicionaNota(String s, Nota nota) {
@@ -29,13 +29,21 @@ public class ParecerRepositoryJson implements ParecerRepository {
         MongoHelper.persistaDocumentoMongoComIdentificador(COLECAO_PARECER, documentoMongoParecer);
     }
 
-    public void atualizaFundamentacao(String s, String s1) {
+    public void atualizaFundamentacao(String parecer, String fundamentacao) {
+        Parecer parecerASerAtualizado = byId(parecer);
 
+        if (parecerASerAtualizado == null) {
+            throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
+        }
+
+        Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
+        Document documentoAlteracao = new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao));
+        MongoHelper.atualizaAtributoDocumentoMongoPeloIdentificador(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
     }
 
     public Parecer byId(String id) {
         Document documentoMongoParecer = MongoHelper.recuperaDocumentoMongoPeloIdentificador(COLECAO_PARECER, id);
-        return (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
+        return documentoMongoParecer == null ? null : (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
     }
 
     public void removeParecer(String s) {

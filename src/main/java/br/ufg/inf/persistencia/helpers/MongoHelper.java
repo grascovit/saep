@@ -9,7 +9,7 @@ import org.bson.Document;
 
 public class MongoHelper {
 
-    private static final String IP_BANCO_DADOS = "63.142.254.59";
+    private static final String IP_BANCO_DADOS = "127.0.0.1";
     private static final String NOME_BANCO_DADOS = "saep";
     private static final String IDENTIFICADOR_UNICO = "id";
     private static MongoClient mongoClient = new MongoClient(IP_BANCO_DADOS);

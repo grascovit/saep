@@ -9,10 +9,19 @@ public class ParecerRepositoryJson implements ParecerRepository {
 
     private static final String COLECAO_PARECER = "parecer";
     private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
+    private static final String NOTAS_PARECER = "notas";
     private static final String IDENTIFICADOR_UNICO = "id";
 
-    public void adicionaNota(String s, Nota nota) {
+    public void adicionaNota(String parecer, Nota nota) {
+        Parecer parecerASerAtualizado = byId(parecer);
 
+        if (parecerASerAtualizado == null) {
+            throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
+        }
+
+        Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
+        Document documentoAlteracao = new Document("$push", new Document(NOTAS_PARECER, nota));
+        MongoHelper.atualizaAtributoDocumentoMongoPeloIdentificador(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
     }
 
     public void removeNota(Avaliavel avaliavel) {

@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -25,13 +24,12 @@ public class ParecerRepositoryJsonTest {
         String id = obtenhaIdAleatorio();
         Parecer parecer = obtenhaParecer(id);
         parecerRepositoryJson.persisteParecer(parecer);
-        Nota nota = new Nota(new Pontuacao("pontuacao", new Valor(10.0f)), new Pontuacao("pontuacaoNova", new Valor(5.0f)), "Justificativa");
+	    int quantidadeNotas = parecer.getNotas().size();
+	    Nota nota = new Nota(new Pontuacao("pontuacao", new Valor(10.0f)), new Pontuacao("pontuacaoNova", new Valor(5.0f)), "Justificativa");
         parecerRepositoryJson.adicionaNota(id, nota);
         parecer = parecerRepositoryJson.byId(id);
-        List<Nota> notas = parecer.getNotas();
-        List<Nota> notasModificadas = notas;
-        notasModificadas.add(nota);
-        assertEquals("A nota foi adicionada com sucesso ao parecer já existente", notasModificadas, notas);
+	    int quantidadeNotasAposAdicao = parecer.getNotas().size();
+        assertEquals("A nota foi adicionada com sucesso ao parecer já existente", quantidadeNotasAposAdicao, ++quantidadeNotas);
     }
 
     @Test

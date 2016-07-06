@@ -40,7 +40,7 @@ public class MongoHelper {
 
     public static void atualizaAtributoDocumentoMongoPeloIdentificador(Document documentoMongo, Document documentoAlteracao, String nomeColecao) {
         MongoCollection<Document> colecao = getColecao(nomeColecao);
-        colecao.updateOne(documentoMongo, documentoAlteracao);
+        colecao.updateOne(documentoMongo, GsonHelper.obtenhaDocumentoMongo(documentoAlteracao));
     }
 
 }

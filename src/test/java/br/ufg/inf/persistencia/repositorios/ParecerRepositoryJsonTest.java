@@ -4,8 +4,7 @@ import br.ufg.inf.es.saep.sandbox.dominio.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -132,12 +131,20 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void radocById() {
-
+	    Parecer parecer = obtenhaParecer();
+	    String idRadoc = parecer.getRadocs().get(0);
+	    parecerRepositoryJson.persisteParecer(parecer);
+	    Radoc radoc = parecerRepositoryJson.radocById(idRadoc);
+	    assertNotNull("O radoc foi recuperado de um parecer através do seu identificador com sucesso", radoc);
     }
 
     @Test
     public void persisteRadoc() {
-
+	    Radoc radoc = obtenhaRadoc();
+	    String idRadoc = radoc.getId();
+	    parecerRepositoryJson.persisteRadoc(radoc);
+	    radoc = parecerRepositoryJson.radocById(idRadoc);
+	    assertEquals("O radoc foi persistido com sucesso", idRadoc, radoc.getId());
     }
 
     @Test
@@ -146,15 +153,23 @@ public class ParecerRepositoryJsonTest {
     }
 
     private Parecer obtenhaParecer() {
-        String id = obtenhaStringAleatoria();
 	    ArrayList<String> radocs = new ArrayList<String>();
 	    radocs.add(obtenhaStringAleatoria());
 	    ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
 	    pontuacoes.add(new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)));
 	    ArrayList<Nota> notas = new ArrayList<Nota>();
 	    notas.add(new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(1.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), obtenhaStringAleatoria()));
-	    return new Parecer(id, obtenhaStringAleatoria(), radocs, pontuacoes, obtenhaStringAleatoria(), notas);
+	    return new Parecer(obtenhaStringAleatoria(), obtenhaStringAleatoria(), radocs, pontuacoes, obtenhaStringAleatoria(), notas);
     }
+
+	private Radoc obtenhaRadoc() {
+		int anoBase = new Random().nextInt(2000) + 1000;
+		ArrayList<Relato> relatos = new ArrayList<Relato>();
+		Map<String, Valor> valores = new HashMap<String, Valor>();
+		valores.put(obtenhaStringAleatoria(), new Valor(obtenhaStringAleatoria()));
+		relatos.add(new Relato(obtenhaStringAleatoria(), valores));
+		return new Radoc(obtenhaStringAleatoria(), anoBase, relatos);
+	}
 
     private String obtenhaStringAleatoria() {
         return UUID.randomUUID().toString();

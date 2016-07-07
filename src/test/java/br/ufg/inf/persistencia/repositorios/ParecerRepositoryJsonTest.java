@@ -21,26 +21,50 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void adicionaNota() {
-        String id = obtenhaIdAleatorio();
-        Parecer parecer = obtenhaParecer(id);
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
         parecerRepositoryJson.persisteParecer(parecer);
 	    int quantidadeNotas = parecer.getNotas().size();
-	    Nota nota = new Nota(new Pontuacao("pontuacao", new Valor(10.0f)), new Pontuacao("pontuacaoNova", new Valor(5.0f)), "Justificativa");
+	    Nota nota = new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)), obtenhaStringAleatoria());
         parecerRepositoryJson.adicionaNota(id, nota);
         parecer = parecerRepositoryJson.byId(id);
-	    int quantidadeNotasAposAdicao = parecer.getNotas().size();
-        assertEquals("A nota foi adicionada com sucesso ao parecer já existente", quantidadeNotasAposAdicao, ++quantidadeNotas);
+        assertEquals("A nota foi adicionada com sucesso ao parecer já existente", ++quantidadeNotas, parecer.getNotas().size());
+    }
+
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void adicionaNotaFalhaPoisParecerNaoEstaPersistido() {
+        Nota nota = new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)), obtenhaStringAleatoria());
+        parecerRepositoryJson.adicionaNota(obtenhaStringAleatoria(), nota);
     }
 
     @Test
     public void removeNota() {
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
+        Pontuacao pontuacaoOriginal = (Pontuacao) parecer.getNotas().get(0).getItemOriginal();
+        parecerRepositoryJson.persisteParecer(parecer);
+        int quantidadeNotas = parecer.getNotas().size();
+        parecerRepositoryJson.removeNota(pontuacaoOriginal);
+        parecer = parecerRepositoryJson.byId(id);
+        assertEquals("A nota foi removida com sucesso através do seu avaliável original", --quantidadeNotas, parecer.getNotas().size());
+    }
 
+    @Test
+    public void removeNotaNaoFazNadaPoisNaoHaNotaComAvaliavelFornecido() {
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
+        parecerRepositoryJson.persisteParecer(parecer);
+        int quantidadeNotas = parecer.getNotas().size();
+        Pontuacao pontuacaoOriginal = new Pontuacao("avaliavelOriginalQueNaoExiste", new Valor(999.0f));
+        parecerRepositoryJson.removeNota(pontuacaoOriginal);
+        parecer = parecerRepositoryJson.byId(id);
+        assertEquals("Nenhuma nota foi removida pois não existe nota que possui este avaliável original", quantidadeNotas, parecer.getNotas().size());
     }
 
     @Test
     public void persisteParecer() {
-        String id = obtenhaIdAleatorio();
-        Parecer parecer = obtenhaParecer(id);
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
 	    parecerRepositoryJson.persisteParecer(parecer);
 	    Parecer parecerPersistido = parecerRepositoryJson.byId(id);
 	    assertEquals("O parecer foi persistido e o id do objeto recuperado do banco é igual ao esperado", id, parecerPersistido.getId());
@@ -48,16 +72,15 @@ public class ParecerRepositoryJsonTest {
 
 	@Test(expected = IdentificadorDesconhecido.class)
 	public void persisteParecerFalhaPoisIdJaExisteNoBanco() {
-        String id = obtenhaIdAleatorio();
-		Parecer parecer = obtenhaParecer(id);
+		Parecer parecer = obtenhaParecer();
         parecerRepositoryJson.persisteParecer(parecer);
         parecerRepositoryJson.persisteParecer(parecer);
 	}
 
     @Test
     public void atualizaFundamentacao() {
-        String id = obtenhaIdAleatorio();
-        Parecer parecer = obtenhaParecer(id);
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
         parecerRepositoryJson.persisteParecer(parecer);
         String novaFundamentacao = "Nova fundamentação";
         parecerRepositoryJson.atualizaFundamentacao(id, novaFundamentacao);
@@ -67,13 +90,13 @@ public class ParecerRepositoryJsonTest {
 
     @Test(expected = IdentificadorDesconhecido.class)
     public void atualizaFundamentacaoFalhaPoisParecerNaoEstaPersistido() {
-        parecerRepositoryJson.atualizaFundamentacao(obtenhaIdAleatorio(), "Nova fundamentação");
+        parecerRepositoryJson.atualizaFundamentacao(obtenhaStringAleatoria(), "Nova fundamentação");
     }
 
     @Test
     public void byId() {
-        String id = obtenhaIdAleatorio();
-        Parecer parecer = obtenhaParecer(id);
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
         parecerRepositoryJson.persisteParecer(parecer);
         parecer = parecerRepositoryJson.byId(id);
 	    assertEquals("O id do objeto recuperado do banco é igual ao esperado", id, parecer.getId());
@@ -81,10 +104,9 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void byIdNaoEncontraParecerComOutroIdentificador() {
-        String id = obtenhaIdAleatorio();
-        Parecer parecer = obtenhaParecer(id);
+        Parecer parecer = obtenhaParecer();
         parecerRepositoryJson.persisteParecer(parecer);
-        assertNull(parecerRepositoryJson.byId(obtenhaIdAleatorio()));
+        assertNull(parecerRepositoryJson.byId(obtenhaStringAleatoria()));
     }
 
     @Test
@@ -107,17 +129,18 @@ public class ParecerRepositoryJsonTest {
 
     }
 
-    private Parecer obtenhaParecer(String id) {
+    private Parecer obtenhaParecer() {
+        String id = obtenhaStringAleatoria();
 	    ArrayList<String> radocs = new ArrayList<String>();
-	    radocs.add("idRadoc");
+	    radocs.add(obtenhaStringAleatoria());
 	    ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
-	    pontuacoes.add(new Pontuacao("fatorCargaHoraria", new Valor(5.0f)));
+	    pontuacoes.add(new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)));
 	    ArrayList<Nota> notas = new ArrayList<Nota>();
-	    notas.add(new Nota(new Pontuacao("pontuacaoAntiga", new Valor(1.0f)), new Pontuacao("pontuacaoNova", new Valor(10.0f)), "Justificativa para a nota"));
-	    return new Parecer(id, "idDaResolucao", radocs, pontuacoes, "Fundamentação de exemplo com caractéres Unicode", notas);
+	    notas.add(new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(1.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), obtenhaStringAleatoria()));
+	    return new Parecer(id, obtenhaStringAleatoria(), radocs, pontuacoes, obtenhaStringAleatoria(), notas);
     }
 
-    private String obtenhaIdAleatorio() {
+    private String obtenhaStringAleatoria() {
         return UUID.randomUUID().toString();
     }
     

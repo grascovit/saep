@@ -10,6 +10,8 @@ public class ParecerRepositoryJson implements ParecerRepository {
     private static final String COLECAO_PARECER = "parecer";
     private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
     private static final String NOTAS_PARECER = "notas";
+    private static final String AVALIAVEL_ORIGINAL = "original";
+    private static final String FILTRO_AVALIAVEL_ORIGINAL = "notas.original";
     private static final String IDENTIFICADOR_UNICO = "id";
 
     public void adicionaNota(String parecer, Nota nota) {
@@ -20,12 +22,14 @@ public class ParecerRepositoryJson implements ParecerRepository {
         }
 
         Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document documentoAlteracao = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
-        MongoHelper.atualizaAtributoDocumentoMongo(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
+        Document adicaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
+        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, adicaoNota);
     }
 
-    public void removeNota(Avaliavel avaliavel) {
-
+    public void removeNota(Avaliavel original) {
+        Document filtroPeloAvaliavel = GsonHelper.obtenhaDocumentoMongo(new Document(FILTRO_AVALIAVEL_ORIGINAL, original));
+        Document remocaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$pull", new Document(NOTAS_PARECER, new Document(AVALIAVEL_ORIGINAL, original))));
+        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, filtroPeloAvaliavel, remocaoNota);
     }
 
     public void persisteParecer(Parecer parecer) {
@@ -46,8 +50,8 @@ public class ParecerRepositoryJson implements ParecerRepository {
         }
 
         Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document documentoAlteracao = GsonHelper.obtenhaDocumentoMongo(new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao)));
-        MongoHelper.atualizaAtributoDocumentoMongo(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
+        Document alteracaoFundamentacao = GsonHelper.obtenhaDocumentoMongo(new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao)));
+        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, alteracaoFundamentacao);
     }
 
     public Parecer byId(String id) {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ParecerRepositoryJsonTest {
@@ -111,8 +112,23 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void removeParecer() {
-
+	    Parecer parecer = obtenhaParecer();
+	    String id = parecer.getId();
+	    parecerRepositoryJson.persisteParecer(parecer);
+	    parecerRepositoryJson.removeParecer(id);
+	    parecer = parecerRepositoryJson.byId(id);
+	    assertNull("O parecer foi removido com sucesso através do seu identificador", parecer);
     }
+
+	@Test
+	public void removeParecerNaoFazNadaPoisParecerNaoExiste() {
+		Parecer parecer = obtenhaParecer();
+		String id = parecer.getId();
+		parecerRepositoryJson.persisteParecer(parecer);
+		parecerRepositoryJson.removeParecer(obtenhaStringAleatoria());
+		parecer = parecerRepositoryJson.byId(id);
+		assertNotNull("O parecer não foi removido pois o identificador está incorreto", parecer);
+	}
 
     @Test
     public void radocById() {

@@ -1,6 +1,5 @@
 package br.ufg.inf.persistencia.helpers;
 
-import br.ufg.inf.es.saep.sandbox.dominio.IdentificadorDesconhecido;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -9,9 +8,8 @@ import org.bson.Document;
 
 public class MongoHelper {
 
-    private static final String IP_BANCO_DADOS = "127.0.0.1";
+    private static final String IP_BANCO_DADOS = "63.142.254.59";
     private static final String NOME_BANCO_DADOS = "saep";
-    private static final String IDENTIFICADOR_UNICO = "id";
     private static MongoClient mongoClient = new MongoClient(IP_BANCO_DADOS);
 
     private static MongoDatabase getBancoDadosMongo(String nomeBancoDados) {
@@ -22,25 +20,24 @@ public class MongoHelper {
         return getBancoDadosMongo(NOME_BANCO_DADOS).getCollection(nomeColecao);
     }
 
-    public static void persistaDocumentoMongoComIdentificador(String nomeColecao, Document documentoMongo) {
+    public static void persistaDocumentoMongo(String nomeColecao, Document documentoASerPersistido) {
         MongoCollection<Document> colecao = getColecao(nomeColecao);
-        Document documentoJaExistente = recuperaDocumentoMongoPeloIdentificador(nomeColecao, documentoMongo.get(IDENTIFICADOR_UNICO).toString());
-
-        if (documentoJaExistente != null) {
-            throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do documento informado");
-        }
-
-        colecao.insertOne(documentoMongo);
+        colecao.insertOne(documentoASerPersistido);
     }
 
-    public static Document recuperaDocumentoMongoPeloIdentificador(String nomeColecao, String identificador) {
-        FindIterable<Document> resultados = getColecao(nomeColecao).find(new Document(IDENTIFICADOR_UNICO, identificador));
+    public static Document recuperaDocumentoMongo(String nomeColecao, Document filtro) {
+        FindIterable<Document> resultados = getColecao(nomeColecao).find(filtro);
         return resultados.first();
     }
 
-    public static void atualizaAtributoDocumentoMongo(String nomeColecao, Document filtro, Document alteracao) {
+    public static void atualizaDocumentoMongo(String nomeColecao, Document filtro, Document alteracao) {
         MongoCollection<Document> colecao = getColecao(nomeColecao);
         colecao.updateOne(filtro, alteracao);
     }
+
+	public static void removeDocumentoMongo(String nomeColecao, Document filtro) {
+		MongoCollection<Document> colecao = getColecao(nomeColecao);
+		colecao.deleteOne(filtro);
+	}
 
 }

@@ -7,72 +7,81 @@ import org.bson.Document;
 
 public class ParecerRepositoryJson implements ParecerRepository {
 
-    private static final String COLECAO_PARECER = "parecer";
-    private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
-    private static final String NOTAS_PARECER = "notas";
-    private static final String AVALIAVEL_ORIGINAL = "original";
-    private static final String FILTRO_AVALIAVEL_ORIGINAL = "notas.original";
-    private static final String IDENTIFICADOR_UNICO = "id";
+	private static final String COLECAO_PARECER = "parecer";
+	private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
+	private static final String NOTAS_PARECER = "notas";
+	private static final String AVALIAVEL_ORIGINAL = "original";
+	private static final String FILTRO_AVALIAVEL_ORIGINAL = "notas.original";
+	private static final String IDENTIFICADOR_UNICO = "id";
 
-    public void adicionaNota(String parecer, Nota nota) {
-        Parecer parecerASerAtualizado = byId(parecer);
+	public void adicionaNota(String parecer, Nota nota) {
+		Parecer parecerASerAtualizado = byId(parecer);
 
-        if (parecerASerAtualizado == null) {
-            throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
-        }
+		if (parecerASerAtualizado == null) {
+			throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
+		}
 
-        Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document adicaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
-        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, adicaoNota);
-    }
+		Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
+		Document adicaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
+		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, adicaoNota);
+	}
 
-    public void removeNota(Avaliavel original) {
-        Document filtroPeloAvaliavel = GsonHelper.obtenhaDocumentoMongo(new Document(FILTRO_AVALIAVEL_ORIGINAL, original));
-        Document remocaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$pull", new Document(NOTAS_PARECER, new Document(AVALIAVEL_ORIGINAL, original))));
-        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, filtroPeloAvaliavel, remocaoNota);
-    }
+	public void removeNota(Avaliavel original) {
+		Document filtroPeloAvaliavel = GsonHelper.obtenhaDocumentoMongo(new Document(FILTRO_AVALIAVEL_ORIGINAL, original));
+		Document remocaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$pull", new Document(NOTAS_PARECER, new Document(AVALIAVEL_ORIGINAL, original))));
+		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, filtroPeloAvaliavel, remocaoNota);
+	}
 
-    public void persisteParecer(Parecer parecer) {
-        Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecer);
+	public void persisteParecer(Parecer parecer) {
+		Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecer);
 
-        if (!documentoMongoParecer.containsKey(IDENTIFICADOR_UNICO) || documentoMongoParecer.get(IDENTIFICADOR_UNICO) == null) {
-            throw new IdentificadorDesconhecido("O documento não possui um identificador");
-        }
+		if (!documentoMongoParecer.containsKey(IDENTIFICADOR_UNICO) || documentoMongoParecer.get(IDENTIFICADOR_UNICO) == null) {
+			throw new IdentificadorDesconhecido("O documento não possui um identificador");
+		}
 
-        MongoHelper.persistaDocumentoMongoComIdentificador(COLECAO_PARECER, documentoMongoParecer);
-    }
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, parecer.getId()));
+		Document parecerJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 
-    public void atualizaFundamentacao(String parecer, String fundamentacao) {
-        Parecer parecerASerAtualizado = byId(parecer);
+		if (parecerJaExistente != null) {
+			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do documento informado");
+		}
 
-        if (parecerASerAtualizado == null) {
-            throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
-        }
+		MongoHelper.persistaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer);
+	}
 
-        Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document alteracaoFundamentacao = GsonHelper.obtenhaDocumentoMongo(new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao)));
-        MongoHelper.atualizaAtributoDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, alteracaoFundamentacao);
-    }
+	public void atualizaFundamentacao(String parecer, String fundamentacao) {
+		Parecer parecerASerAtualizado = byId(parecer);
 
-    public Parecer byId(String id) {
-        Document documentoMongoParecer = MongoHelper.recuperaDocumentoMongoPeloIdentificador(COLECAO_PARECER, id);
-        return documentoMongoParecer == null ? null : (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
-    }
+		if (parecerASerAtualizado == null) {
+			throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
+		}
 
-    public void removeParecer(String s) {
+		Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
+		Document alteracaoFundamentacao = GsonHelper.obtenhaDocumentoMongo(new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao)));
+		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, alteracaoFundamentacao);
+	}
 
-    }
+	public Parecer byId(String id) {
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, id));
+		Document documentoMongoParecer = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
+		return documentoMongoParecer == null ? null : (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
+	}
 
-    public Radoc radocById(String s) {
-        return null;
-    }
+	public void removeParecer(String id) {
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, id));
+		MongoHelper.removeDocumentoMongo(COLECAO_PARECER, filtroPeloId);
+	}
 
-    public String persisteRadoc(Radoc radoc) {
-        return null;
-    }
+	public Radoc radocById(String s) {
+		return null;
+	}
 
-    public void removeRadoc(String s) {
+	public String persisteRadoc(Radoc radoc) {
+		return null;
+	}
 
-    }
+	public void removeRadoc(String s) {
+
+	}
 
 }

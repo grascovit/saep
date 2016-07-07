@@ -38,9 +38,9 @@ public class MongoHelper {
         return resultados.first();
     }
 
-    public static void atualizaAtributoDocumentoMongoPeloIdentificador(Document documentoMongo, Document documentoAlteracao, String nomeColecao) {
+    public static void atualizaAtributoDocumentoMongo(Document documentoMongo, Document documentoAlteracao, String nomeColecao) {
         MongoCollection<Document> colecao = getColecao(nomeColecao);
-        colecao.updateOne(documentoMongo, GsonHelper.obtenhaDocumentoMongo(documentoAlteracao));
+        colecao.updateOne(documentoMongo, documentoAlteracao);
     }
 
 }

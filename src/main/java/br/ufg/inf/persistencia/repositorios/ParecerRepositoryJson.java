@@ -20,8 +20,8 @@ public class ParecerRepositoryJson implements ParecerRepository {
         }
 
         Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document documentoAlteracao = new Document("$push", new Document(NOTAS_PARECER, nota));
-        MongoHelper.atualizaAtributoDocumentoMongoPeloIdentificador(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
+        Document documentoAlteracao = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
+        MongoHelper.atualizaAtributoDocumentoMongo(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
     }
 
     public void removeNota(Avaliavel avaliavel) {
@@ -46,8 +46,8 @@ public class ParecerRepositoryJson implements ParecerRepository {
         }
 
         Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-        Document documentoAlteracao = new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao));
-        MongoHelper.atualizaAtributoDocumentoMongoPeloIdentificador(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
+        Document documentoAlteracao = GsonHelper.obtenhaDocumentoMongo(new Document("$set", new Document(FUNDAMENTACAO_PARECER, fundamentacao)));
+        MongoHelper.atualizaAtributoDocumentoMongo(documentoMongoParecer, documentoAlteracao, COLECAO_PARECER);
     }
 
     public Parecer byId(String id) {

@@ -25,7 +25,7 @@ public class ParecerRepositoryJsonTest {
         String id = parecer.getId();
         parecerRepositoryJson.persisteParecer(parecer);
 	    int quantidadeNotas = parecer.getNotas().size();
-	    Nota nota = new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)), obtenhaStringAleatoria());
+	    Nota nota = obtenhaNota();
         parecerRepositoryJson.adicionaNota(id, nota);
         parecer = parecerRepositoryJson.byId(id);
         assertEquals("A nota foi adicionada com sucesso ao parecer já existente", ++quantidadeNotas, parecer.getNotas().size());
@@ -33,7 +33,7 @@ public class ParecerRepositoryJsonTest {
 
     @Test(expected = IdentificadorDesconhecido.class)
     public void adicionaNotaFalhaPoisParecerNaoEstaPersistido() {
-        Nota nota = new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)), obtenhaStringAleatoria());
+        Nota nota = obtenhaNota();
         parecerRepositoryJson.adicionaNota(obtenhaStringAleatoria(), nota);
     }
 
@@ -131,25 +131,49 @@ public class ParecerRepositoryJsonTest {
 
     @Test
     public void radocById() {
-	    Parecer parecer = obtenhaParecer();
-	    String idRadoc = parecer.getRadocs().get(0);
-	    parecerRepositoryJson.persisteParecer(parecer);
-	    Radoc radoc = parecerRepositoryJson.radocById(idRadoc);
-	    assertNotNull("O radoc foi recuperado de um parecer através do seu identificador com sucesso", radoc);
+        Radoc radoc = obtenhaRadoc();
+        String idRadoc = radoc.getId();
+	    String idRadocPersistido = parecerRepositoryJson.persisteRadoc(radoc);
+        radoc = parecerRepositoryJson.radocById(idRadoc);
+	    assertEquals("O RADOC foi recuperado através do seu identificador com sucesso", idRadocPersistido, radoc.getId());
     }
 
     @Test
     public void persisteRadoc() {
 	    Radoc radoc = obtenhaRadoc();
 	    String idRadoc = radoc.getId();
-	    parecerRepositoryJson.persisteRadoc(radoc);
-	    radoc = parecerRepositoryJson.radocById(idRadoc);
-	    assertEquals("O radoc foi persistido com sucesso", idRadoc, radoc.getId());
+	    String idRadocPersistido = parecerRepositoryJson.persisteRadoc(radoc);
+	    assertEquals("O RADOC foi persistido com sucesso", idRadoc, idRadocPersistido);
+    }
+
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void persisteRadocFalhaPoisIdJaExisteNoBanco() {
+        Radoc radoc = obtenhaRadoc();
+        parecerRepositoryJson.persisteRadoc(radoc);
+        parecerRepositoryJson.persisteRadoc(radoc);
     }
 
     @Test
     public void removeRadoc() {
+        Radoc radoc = obtenhaRadoc();
+        String idRadoc = radoc.getId();
+        parecerRepositoryJson.persisteRadoc(radoc);
+        parecerRepositoryJson.removeRadoc(idRadoc);
+        radoc = parecerRepositoryJson.radocById(idRadoc);
+        assertNull("O RADOC foi removido com sucesso", radoc);
+    }
 
+    @Test
+    public void removeRadocFalhaPoisExisteParecerReferenciandoRadoc() {
+        Radoc radoc = obtenhaRadoc();
+        String idRadoc = radoc.getId();
+        parecerRepositoryJson.persisteRadoc(radoc);
+        Parecer parecer = obtenhaParecer();
+        parecer.getRadocs().add(idRadoc);
+        parecerRepositoryJson.persisteParecer(parecer);
+        parecerRepositoryJson.removeRadoc(idRadoc);
+        radoc = parecerRepositoryJson.radocById(idRadoc);
+        assertEquals("O RADOC não foi removido pois existe um parecer que o referencia", idRadoc, radoc.getId());
     }
 
     private Parecer obtenhaParecer() {
@@ -170,6 +194,12 @@ public class ParecerRepositoryJsonTest {
 		relatos.add(new Relato(obtenhaStringAleatoria(), valores));
 		return new Radoc(obtenhaStringAleatoria(), anoBase, relatos);
 	}
+
+    private Nota obtenhaNota() {
+        Pontuacao pontuacaoOriginal = new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f));
+        Pontuacao pontuacaoNova = new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f));
+        return new Nota(pontuacaoOriginal, pontuacaoNova, obtenhaStringAleatoria());
+    }
 
     private String obtenhaStringAleatoria() {
         return UUID.randomUUID().toString();

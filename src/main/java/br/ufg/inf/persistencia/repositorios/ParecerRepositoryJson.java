@@ -8,6 +8,8 @@ import org.bson.Document;
 public class ParecerRepositoryJson implements ParecerRepository {
 
 	private static final String COLECAO_PARECER = "parecer";
+	private static final String COLECAO_RADOC = "radoc";
+	private static final String RADOCS_PARECER = "radocs";
 	private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
 	private static final String NOTAS_PARECER = "notas";
 	private static final String AVALIAVEL_ORIGINAL = "original";
@@ -43,7 +45,7 @@ public class ParecerRepositoryJson implements ParecerRepository {
 		Document parecerJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 
 		if (parecerJaExistente != null) {
-			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do documento informado");
+			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do parecer informado");
 		}
 
 		MongoHelper.persistaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer);
@@ -72,16 +74,42 @@ public class ParecerRepositoryJson implements ParecerRepository {
 		MongoHelper.removeDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 	}
 
-	public Radoc radocById(String s) {
-		return null;
+	public Radoc radocById(String identificador) {
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, identificador));
+		Document documentoMongoRadoc = MongoHelper.recuperaDocumentoMongo(COLECAO_RADOC, filtroPeloId);
+		return documentoMongoRadoc == null ? null : (Radoc) GsonHelper.obtenhaObjeto(documentoMongoRadoc, Radoc.class);
 	}
 
 	public String persisteRadoc(Radoc radoc) {
-		return null;
+		Document documentoMongoRadoc = GsonHelper.obtenhaDocumentoMongo(radoc);
+
+		if (!documentoMongoRadoc.containsKey(IDENTIFICADOR_UNICO) || documentoMongoRadoc.get(IDENTIFICADOR_UNICO) == null) {
+			throw new IdentificadorDesconhecido("O documento não possui um identificador");
+		}
+
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, radoc.getId()));
+		Document radocJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_RADOC, filtroPeloId);
+
+		if (radocJaExistente != null) {
+			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do RADOC informado");
+		}
+
+		MongoHelper.persistaDocumentoMongo(COLECAO_RADOC, documentoMongoRadoc);
+		radocJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_RADOC, filtroPeloId);
+
+		return radocJaExistente.get(IDENTIFICADOR_UNICO) != null ? radocJaExistente.get(IDENTIFICADOR_UNICO).toString() : null;
 	}
 
-	public void removeRadoc(String s) {
+	public void removeRadoc(String identificador) {
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(RADOCS_PARECER, identificador));
+		Document parecerReferenciandoRadoc = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 
+		if (parecerReferenciandoRadoc != null) {
+			return;
+		}
+
+		filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, identificador));
+		MongoHelper.removeDocumentoMongo(COLECAO_RADOC, filtroPeloId);
 	}
 
 }

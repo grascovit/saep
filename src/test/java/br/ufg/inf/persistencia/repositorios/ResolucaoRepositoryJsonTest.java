@@ -1,13 +1,12 @@
 package br.ufg.inf.persistencia.repositorios;
 
-import br.ufg.inf.es.saep.sandbox.dominio.Parecer;
 import br.ufg.inf.es.saep.sandbox.dominio.Regra;
 import br.ufg.inf.es.saep.sandbox.dominio.Resolucao;
-import br.ufg.inf.es.saep.sandbox.dominio.Tipo;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -59,6 +58,17 @@ public class ResolucaoRepositoryJsonTest {
         Resolucao resolucao = obtenhaResolucao();
         resolucaoRepositoryJson.persiste(resolucao);
         assertFalse("A resolução não é removida pois o identificador está incorreto", resolucaoRepositoryJson.remove(obtenhaStringAleatoria()));
+    }
+
+    @Test
+    public void resolucoes() {
+        Resolucao resolucao = obtenhaResolucao();
+        String idResolucao = resolucaoRepositoryJson.persiste(resolucao);
+        resolucao = obtenhaResolucao();
+        String outroIdResolucao = resolucaoRepositoryJson.persiste(resolucao);
+        List<String> identificadoresResolucoes = resolucaoRepositoryJson.resolucoes();
+        assertTrue("Os identificadores das resoluções disponíveis são iguais aos persistidos", identificadoresResolucoes.contains(idResolucao));
+        assertTrue("Os identificadores das resoluções disponíveis são iguais aos persistidos", identificadoresResolucoes.contains(outroIdResolucao));
     }
 
     private Resolucao obtenhaResolucao() {

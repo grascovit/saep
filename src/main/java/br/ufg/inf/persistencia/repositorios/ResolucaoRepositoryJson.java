@@ -5,6 +5,7 @@ import br.ufg.inf.persistencia.helpers.GsonHelper;
 import br.ufg.inf.persistencia.helpers.MongoHelper;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ResolucaoRepositoryJson implements ResolucaoRepository {
@@ -44,7 +45,15 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     }
 
     public List<String> resolucoes() {
-        return null;
+        List<Document> documentosResolucoesDisponiveis = MongoHelper.recuperaDocumentosMongo(COLECAO_RESOLUCAO, new Document());
+        List<String> idsResolucoesDisponiveis = new ArrayList<String>();
+
+        for (Document documentoResolucao : documentosResolucoesDisponiveis) {
+            Resolucao resolucao = (Resolucao) GsonHelper.obtenhaObjeto(documentoResolucao, Resolucao.class);
+            idsResolucoesDisponiveis.add(resolucao.getId());
+        }
+
+        return idsResolucoesDisponiveis;
     }
 
     public void persisteTipo(Tipo tipo) {

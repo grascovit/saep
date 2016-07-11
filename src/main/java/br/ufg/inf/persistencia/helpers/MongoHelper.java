@@ -7,6 +7,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MongoHelper {
 
     private static final String IP_BANCO_DADOS = "63.142.254.59";
@@ -21,14 +24,29 @@ public class MongoHelper {
         return getBancoDadosMongo(NOME_BANCO_DADOS).getCollection(nomeColecao);
     }
 
+    private static FindIterable<Document> recuperaIteravelMongo(String nomeColecao, Document filtro) {
+        return getColecao(nomeColecao).find(filtro);
+    }
+
     public static void persistaDocumentoMongo(String nomeColecao, Document documentoASerPersistido) {
         MongoCollection<Document> colecao = getColecao(nomeColecao);
         colecao.insertOne(documentoASerPersistido);
     }
 
     public static Document recuperaDocumentoMongo(String nomeColecao, Document filtro) {
-        FindIterable<Document> resultados = getColecao(nomeColecao).find(filtro);
+        FindIterable<Document> resultados = recuperaIteravelMongo(nomeColecao, filtro);
         return resultados.first();
+    }
+
+    public static List<Document> recuperaDocumentosMongo(String nomeColecao, Document filtro) {
+        List<Document> documentosMongo = new ArrayList<Document>();
+        FindIterable<Document> resultados = recuperaIteravelMongo(nomeColecao, filtro);
+
+        for (Document documentoMongo : resultados) {
+            documentosMongo.add(documentoMongo);
+        }
+
+        return documentosMongo;
     }
 
     public static void atualizaDocumentoMongo(String nomeColecao, Document filtro, Document alteracao) {

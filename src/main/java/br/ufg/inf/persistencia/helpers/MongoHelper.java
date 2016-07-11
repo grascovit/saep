@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 
 public class MongoHelper {
@@ -35,9 +36,10 @@ public class MongoHelper {
         colecao.updateOne(filtro, alteracao);
     }
 
-	public static void removeDocumentoMongo(String nomeColecao, Document filtro) {
+	public static Boolean removeDocumentoMongo(String nomeColecao, Document filtro) {
 		MongoCollection<Document> colecao = getColecao(nomeColecao);
-		colecao.deleteOne(filtro);
+		DeleteResult resultadoRemocao = colecao.deleteOne(filtro);
+        return resultadoRemocao.getDeletedCount() > 0;
 	}
 
 }

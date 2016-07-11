@@ -1,7 +1,6 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -12,12 +11,7 @@ import static org.junit.Assert.assertNull;
 
 public class ParecerRepositoryJsonTest {
 
-    private ParecerRepositoryJson parecerRepositoryJson;
-
-    @Before
-    public void setUp() {
-        parecerRepositoryJson = new ParecerRepositoryJson();
-    }
+    private ParecerRepositoryJson parecerRepositoryJson = new ParecerRepositoryJson();
 
     @Test
     public void adicionaNota() {

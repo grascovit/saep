@@ -38,7 +38,7 @@ public class ParecerRepositoryJsonTest {
         Pontuacao pontuacaoOriginal = (Pontuacao) parecer.getNotas().get(0).getItemOriginal();
         parecerRepositoryJson.persisteParecer(parecer);
         int quantidadeNotas = parecer.getNotas().size();
-        parecerRepositoryJson.removeNota(pontuacaoOriginal);
+        parecerRepositoryJson.removeNota(id, pontuacaoOriginal);
         parecer = parecerRepositoryJson.byId(id);
         assertEquals("A nota foi removida com sucesso através do seu avaliável original", --quantidadeNotas, parecer.getNotas().size());
     }
@@ -50,7 +50,7 @@ public class ParecerRepositoryJsonTest {
         parecerRepositoryJson.persisteParecer(parecer);
         int quantidadeNotas = parecer.getNotas().size();
         Pontuacao pontuacaoOriginal = new Pontuacao("avaliavelOriginalQueNaoExiste", new Valor(999.0f));
-        parecerRepositoryJson.removeNota(pontuacaoOriginal);
+        parecerRepositoryJson.removeNota(id, pontuacaoOriginal);
         parecer = parecerRepositoryJson.byId(id);
         assertEquals("Nenhuma nota foi removida pois não existe nota que possui este avaliável original", quantidadeNotas, parecer.getNotas().size());
     }
@@ -97,10 +97,10 @@ public class ParecerRepositoryJsonTest {
     }
 
     @Test
-    public void byIdNaoEncontraParecerComOutroIdentificador() {
+    public void byIdNaoEncontraParecerComIdentificadorDiferente() {
         Parecer parecer = obtenhaParecer();
         parecerRepositoryJson.persisteParecer(parecer);
-        assertNull(parecerRepositoryJson.byId(obtenhaStringAleatoria()));
+        assertNull("O parecer não é encontrado pois o identificador buscado é diferente", parecerRepositoryJson.byId(obtenhaStringAleatoria()));
     }
 
     @Test
@@ -176,7 +176,8 @@ public class ParecerRepositoryJsonTest {
 	    ArrayList<Pontuacao> pontuacoes = new ArrayList<Pontuacao>();
 	    pontuacoes.add(new Pontuacao(obtenhaStringAleatoria(), new Valor(5.0f)));
 	    ArrayList<Nota> notas = new ArrayList<Nota>();
-	    notas.add(new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(1.0f)), new Pontuacao(obtenhaStringAleatoria(), new Valor(10.0f)), obtenhaStringAleatoria()));
+	    notas.add(new Nota(new Pontuacao(obtenhaStringAleatoria(), new Valor(1.0f)), new Pontuacao(obtenhaStringAleatoria(),
+                new Valor(10.0f)), obtenhaStringAleatoria()));
 	    return new Parecer(obtenhaStringAleatoria(), obtenhaStringAleatoria(), radocs, pontuacoes, obtenhaStringAleatoria(), notas);
     }
 

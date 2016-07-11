@@ -13,7 +13,6 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
 	private static final String NOTAS_PARECER = "notas";
 	private static final String AVALIAVEL_ORIGINAL = "original";
-	private static final String FILTRO_AVALIAVEL_ORIGINAL = "notas.original";
 	private static final String IDENTIFICADOR_UNICO = "id";
 
 	public void adicionaNota(String parecer, Nota nota) {
@@ -28,10 +27,10 @@ public class ParecerRepositoryJson implements ParecerRepository {
 		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, adicaoNota);
 	}
 
-	public void removeNota(Avaliavel original) {
-		Document filtroPeloAvaliavel = GsonHelper.obtenhaDocumentoMongo(new Document(FILTRO_AVALIAVEL_ORIGINAL, original));
+	public void removeNota(String id, Avaliavel original) {
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, id));
 		Document remocaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$pull", new Document(NOTAS_PARECER, new Document(AVALIAVEL_ORIGINAL, original))));
-		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, filtroPeloAvaliavel, remocaoNota);
+		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, filtroPeloId, remocaoNota);
 	}
 
 	public void persisteParecer(Parecer parecer) {

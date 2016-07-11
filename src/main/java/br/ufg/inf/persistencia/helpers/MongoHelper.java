@@ -1,5 +1,6 @@
 package br.ufg.inf.persistencia.helpers;
 
+import com.github.fakemongo.Fongo;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -14,7 +15,7 @@ public class MongoHelper {
 
     private static final String IP_BANCO_DADOS = "63.142.254.59";
     private static final String NOME_BANCO_DADOS = "saep";
-    private static MongoClient mongoClient = new MongoClient(IP_BANCO_DADOS);
+    private static Fongo mongoClient = new Fongo(IP_BANCO_DADOS);
 
     private static MongoDatabase getBancoDadosMongo(String nomeBancoDados) {
         return mongoClient.getDatabase(nomeBancoDados);

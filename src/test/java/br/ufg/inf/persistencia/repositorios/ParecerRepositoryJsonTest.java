@@ -1,6 +1,8 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
+import br.ufg.inf.persistencia.helpers.MongoHelper;
+import com.mongodb.MongoClient;
 import org.junit.Test;
 
 import java.util.*;
@@ -11,7 +13,10 @@ import static org.junit.Assert.assertNull;
 
 public class ParecerRepositoryJsonTest {
 
-    private ParecerRepositoryJson parecerRepositoryJson = new ParecerRepositoryJson();
+	private static final String IP_BANCO_DADOS = "63.142.254.59";
+	private static final String NOME_BANCO_DADOS = "saep-teste";
+	private MongoHelper mongoHelper = new MongoHelper(new MongoClient(IP_BANCO_DADOS), NOME_BANCO_DADOS);
+	private ParecerRepositoryJson parecerRepositoryJson = new ParecerRepositoryJson(mongoHelper);
 
     @Test
     public void adicionaNota() {

@@ -34,7 +34,7 @@ public class ResolucaoRepositoryJsonTest {
         assertEquals("A resolução é persistida com sucesso", idResolucao, idResolucaoPersistida);
     }
 
-    @Test
+    @Test(expected = IdentificadorExistente.class)
     public void persisteRetornaNuloPoisIdJaExisteNoBanco() {
         Resolucao resolucao = obtenhaResolucao();
         resolucaoRepositoryJson.persiste(resolucao);
@@ -75,6 +75,13 @@ public class ResolucaoRepositoryJsonTest {
 		Tipo tipoPersistido = resolucaoRepositoryJson.tipoPeloCodigo(idTipo);
 		assertEquals("O tipo é persistido com sucesso", idTipo, tipoPersistido.getId());
 	}
+
+    @Test(expected = IdentificadorExistente.class)
+    public void persisteTipoFalhaPoisJaExisteTipoComMesmoNome() {
+        Tipo tipo = obtenhaTipo();
+        resolucaoRepositoryJson.persisteTipo(tipo);
+        resolucaoRepositoryJson.persisteTipo(tipo);
+    }
 
 	@Test
 	public void removeTipo() {

@@ -20,7 +20,7 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     public Resolucao byId(String id) {
         Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, id));
         Document documentoMongoResolucao = MongoHelper.recuperaDocumentoMongo(COLECAO_RESOLUCAO, filtroPeloId);
-        return documentoMongoResolucao == null ? null : (Resolucao) GsonHelper.obtenhaObjeto(documentoMongoResolucao, Resolucao.class);
+        return (Resolucao) GsonHelper.obtenhaObjeto(documentoMongoResolucao, Resolucao.class);
     }
 
     public String persiste(Resolucao resolucao) {
@@ -34,7 +34,7 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
         Document resolucaoJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_RESOLUCAO, filtroPeloId);
 
         if (resolucaoJaExistente != null) {
-            return null;
+            throw new IdentificadorExistente("Já existe na coleção um documento com o identificador da resolução informada");
         }
 
         MongoHelper.persistaDocumentoMongo(COLECAO_RESOLUCAO, documentoMongoResolucao);
@@ -61,7 +61,14 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     }
 
     public void persisteTipo(Tipo tipo) {
-		Document documentoMongoTipo = GsonHelper.obtenhaDocumentoMongo(tipo);
+        Document filtroPeloCodigo = GsonHelper.obtenhaDocumentoMongo(new Document(NOME_TIPO, tipo.getNome()));
+        Tipo tipoJaExistente = (Tipo) GsonHelper.obtenhaObjeto(MongoHelper.recuperaDocumentoMongo(COLECAO_TIPO, filtroPeloCodigo), Tipo.class);
+
+        if (tipoJaExistente != null) {
+            throw new IdentificadorExistente("Já existe na coleção um documento com o nome do tipo informado");
+        }
+
+        Document documentoMongoTipo = GsonHelper.obtenhaDocumentoMongo(tipo);
 	    MongoHelper.persistaDocumentoMongo(COLECAO_TIPO, documentoMongoTipo);
     }
 
@@ -80,7 +87,7 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     public Tipo tipoPeloCodigo(String codigo) {
 	    Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, codigo));
 	    Document documentoMongoTipo = MongoHelper.recuperaDocumentoMongo(COLECAO_TIPO, filtroPeloId);
-        return documentoMongoTipo == null ? null : (Tipo) GsonHelper.obtenhaObjeto(documentoMongoTipo, Tipo.class);
+        return (Tipo) GsonHelper.obtenhaObjeto(documentoMongoTipo, Tipo.class);
     }
 
     public List<Tipo> tiposPeloNome(String nome) {

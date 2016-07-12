@@ -25,6 +25,20 @@ public class ParecerRepositoryJsonTest {
         assertEquals("A nota foi adicionada com sucesso ao parecer já existente", ++quantidadeNotas, parecer.getNotas().size());
     }
 
+    @Test
+    public void adicionaNotaAtualizaNotaJaExistente() {
+        Parecer parecer = obtenhaParecer();
+        String id = parecer.getId();
+        parecerRepositoryJson.persisteParecer(parecer);
+        int quantidadeNotas = parecer.getNotas().size();
+        Avaliavel pontuacaoOriginal = parecer.getNotas().get(0).getItemOriginal();
+        Pontuacao pontuacaoNova = new Pontuacao(obtenhaStringAleatoria(), new Valor(999.0f));
+        Nota nota = new Nota(pontuacaoOriginal, pontuacaoNova, obtenhaStringAleatoria());
+        parecerRepositoryJson.adicionaNota(id, nota);
+        parecer = parecerRepositoryJson.byId(id);
+        assertEquals("A nota já existente foi substituída do parecer, pois o item original da nota à ser adicionada era igual ao da nota já persistida", quantidadeNotas, parecer.getNotas().size());
+    }
+
     @Test(expected = IdentificadorDesconhecido.class)
     public void adicionaNotaFalhaPoisParecerNaoEstaPersistido() {
         Nota nota = obtenhaNota();

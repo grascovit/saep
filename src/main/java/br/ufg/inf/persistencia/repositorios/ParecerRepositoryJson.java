@@ -13,18 +13,20 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
 	private static final String NOTAS_PARECER = "notas";
 	private static final String AVALIAVEL_ORIGINAL = "original";
+	private static final String AVALIAVEL_ORIGINAL_NOTA = "notas.original";
 	private static final String IDENTIFICADOR_UNICO = "id";
 
-	public void adicionaNota(String parecer, Nota nota) {
-		Parecer parecerASerAtualizado = byId(parecer);
+	public void adicionaNota(String id, Nota nota) {
+		Parecer parecerASerAtualizado = byId(id);
 
 		if (parecerASerAtualizado == null) {
 			throw new IdentificadorDesconhecido("O parecer à ser atualizado não existe no banco de dados");
 		}
 
-		Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecerASerAtualizado);
-		Document adicaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
-		MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer, adicaoNota);
+        removeNota(id, nota.getItemOriginal());
+		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, parecerASerAtualizado.getId()));
+        Document adicaoNota = GsonHelper.obtenhaDocumentoMongo(new Document("$push", new Document(NOTAS_PARECER, nota)));
+        MongoHelper.atualizaDocumentoMongo(COLECAO_PARECER, filtroPeloId, adicaoNota);
 	}
 
 	public void removeNota(String id, Avaliavel original) {

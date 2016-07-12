@@ -16,7 +16,8 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	private static final String AVALIAVEL_ORIGINAL = "original";
 	private static final String IDENTIFICADOR_UNICO = "id";
 	private static final String IP_BANCO_DADOS = "63.142.254.59";
-	private static final String NOME_BANCO_DADOS = "saep-teste";
+	private static final String NOME_BANCO_DADOS = "saep";
+
 	private MongoHelper mongoHelper;
 	
 	public ParecerRepositoryJson(MongoHelper mongoHelper) {

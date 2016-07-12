@@ -19,6 +19,7 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     private static final String IDENTIFICADOR_UNICO = "id";
 	private static final String IP_BANCO_DADOS = "63.142.254.59";
 	private static final String NOME_BANCO_DADOS = "saep";
+
 	private MongoHelper mongoHelper;
 
 	public ResolucaoRepositoryJson(MongoHelper mongoHelper) {

@@ -14,12 +14,12 @@ public class GsonHelper {
     private static Gson gson = builder.create();
 
     public static Document obtenhaDocumentoMongo(Object objeto) {
-        String json = gson.toJson(objeto);
+        String json = objeto != null ? gson.toJson(objeto) : null;
         return Document.parse(json);
     }
 
     public static Object obtenhaObjeto(Document documentoMongo, Type tipoObjeto) {
-        String json = documentoMongo.toJson();
+        String json = documentoMongo != null ? documentoMongo.toJson() : null;
         return gson.fromJson(json, tipoObjeto);
     }
 

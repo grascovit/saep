@@ -78,7 +78,7 @@ public class ParecerRepositoryJsonTest {
 	    assertEquals("O parecer foi persistido e o id do objeto recuperado do banco é igual ao esperado", id, parecerPersistido.getId());
     }
 
-	@Test(expected = IdentificadorDesconhecido.class)
+	@Test(expected = IdentificadorExistente.class)
 	public void persisteParecerFalhaPoisIdJaExisteNoBanco() {
 		Parecer parecer = obtenhaParecer();
         parecerRepositoryJson.persisteParecer(parecer);
@@ -154,7 +154,7 @@ public class ParecerRepositoryJsonTest {
 	    assertEquals("O RADOC foi persistido com sucesso", idRadoc, idRadocPersistido);
     }
 
-    @Test(expected = IdentificadorDesconhecido.class)
+    @Test(expected = IdentificadorExistente.class)
     public void persisteRadocFalhaPoisIdJaExisteNoBanco() {
         Radoc radoc = obtenhaRadoc();
         parecerRepositoryJson.persisteRadoc(radoc);
@@ -171,7 +171,7 @@ public class ParecerRepositoryJsonTest {
         assertNull("O RADOC foi removido com sucesso", radoc);
     }
 
-    @Test
+    @Test(expected = ExisteParecerReferenciandoRadoc.class)
     public void removeRadocFalhaPoisExisteParecerReferenciandoRadoc() {
         Radoc radoc = obtenhaRadoc();
         String idRadoc = radoc.getId();

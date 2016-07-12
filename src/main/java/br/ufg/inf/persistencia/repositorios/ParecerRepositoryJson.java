@@ -37,16 +37,11 @@ public class ParecerRepositoryJson implements ParecerRepository {
 
 	public void persisteParecer(Parecer parecer) {
 		Document documentoMongoParecer = GsonHelper.obtenhaDocumentoMongo(parecer);
-
-		if (!documentoMongoParecer.containsKey(IDENTIFICADOR_UNICO) || documentoMongoParecer.get(IDENTIFICADOR_UNICO) == null) {
-			throw new IdentificadorDesconhecido("O documento não possui um identificador");
-		}
-
 		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, parecer.getId()));
 		Document parecerJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 
 		if (parecerJaExistente != null) {
-			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do parecer informado");
+			throw new IdentificadorExistente("Já existe na coleção um documento com o identificador do parecer informado");
 		}
 
 		MongoHelper.persistaDocumentoMongo(COLECAO_PARECER, documentoMongoParecer);
@@ -67,7 +62,7 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	public Parecer byId(String id) {
 		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, id));
 		Document documentoMongoParecer = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
-		return documentoMongoParecer == null ? null : (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
+		return (Parecer) GsonHelper.obtenhaObjeto(documentoMongoParecer, Parecer.class);
 	}
 
 	public void removeParecer(String id) {
@@ -78,21 +73,16 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	public Radoc radocById(String identificador) {
 		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, identificador));
 		Document documentoMongoRadoc = MongoHelper.recuperaDocumentoMongo(COLECAO_RADOC, filtroPeloId);
-		return documentoMongoRadoc == null ? null : (Radoc) GsonHelper.obtenhaObjeto(documentoMongoRadoc, Radoc.class);
+		return (Radoc) GsonHelper.obtenhaObjeto(documentoMongoRadoc, Radoc.class);
 	}
 
 	public String persisteRadoc(Radoc radoc) {
 		Document documentoMongoRadoc = GsonHelper.obtenhaDocumentoMongo(radoc);
-
-		if (!documentoMongoRadoc.containsKey(IDENTIFICADOR_UNICO) || documentoMongoRadoc.get(IDENTIFICADOR_UNICO) == null) {
-			throw new IdentificadorDesconhecido("O documento não possui um identificador");
-		}
-
 		Document filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, radoc.getId()));
 		Document radocJaExistente = MongoHelper.recuperaDocumentoMongo(COLECAO_RADOC, filtroPeloId);
 
 		if (radocJaExistente != null) {
-			throw new IdentificadorDesconhecido("Já existe na coleção um documento com o identificador do RADOC informado");
+			throw new IdentificadorExistente("Já existe na coleção um documento com o identificador do RADOC informado");
 		}
 
 		MongoHelper.persistaDocumentoMongo(COLECAO_RADOC, documentoMongoRadoc);
@@ -106,7 +96,7 @@ public class ParecerRepositoryJson implements ParecerRepository {
 		Document parecerReferenciandoRadoc = MongoHelper.recuperaDocumentoMongo(COLECAO_PARECER, filtroPeloId);
 
 		if (parecerReferenciandoRadoc != null) {
-			return;
+			throw new ExisteParecerReferenciandoRadoc("O RADOC não pode ser removido pois existe um parecer que o referencia");
 		}
 
 		filtroPeloId = GsonHelper.obtenhaDocumentoMongo(new Document(IDENTIFICADOR_UNICO, identificador));

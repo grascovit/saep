@@ -13,7 +13,6 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	private static final String FUNDAMENTACAO_PARECER = "fundamentacao";
 	private static final String NOTAS_PARECER = "notas";
 	private static final String AVALIAVEL_ORIGINAL = "original";
-	private static final String AVALIAVEL_ORIGINAL_NOTA = "notas.original";
 	private static final String IDENTIFICADOR_UNICO = "id";
 
 	public void adicionaNota(String id, Nota nota) {

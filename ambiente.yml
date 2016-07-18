@@ -2,5 +2,5 @@ producao:
   nome-banco-dados: saep
   ip-banco-dados: 63.142.254.59
 teste:
-  nome-banco-dados: saep
+  nome-banco-dados: saep-teste
   ip-banco-dados: 63.142.254.59

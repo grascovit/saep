@@ -15,9 +15,9 @@ public class MongoHelper {
 	private String nomeBancoDados;
     private MongoClient mongoClient;
 
-	public MongoHelper(MongoClient mongoClient, String nomeBancoDados) {
-		this.mongoClient = mongoClient;
-		this.nomeBancoDados = nomeBancoDados;
+	public MongoHelper(ArquivoHelper arquivoHelper) {
+		this.mongoClient = new MongoClient(arquivoHelper.obtenhaIpBancoDados());
+		this.nomeBancoDados = arquivoHelper.obtenhaNomeBancoDados();
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
+import br.ufg.inf.persistencia.helpers.ArquivoHelper;
 import br.ufg.inf.persistencia.helpers.GsonHelper;
 import br.ufg.inf.persistencia.helpers.MongoHelper;
 import com.mongodb.MongoClient;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static br.ufg.inf.persistencia.modelos.ArquivoConfiguracao.AMBIENTE_PRODUCAO;
+
 public class ResolucaoRepositoryJson implements ResolucaoRepository {
 
     private static final String COLECAO_RESOLUCAO = "resolucao";
@@ -17,8 +20,6 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
     private static final String TIPO_REGRA = "regras.tipoRelato";
     private static final String NOME_TIPO = "nome";
     private static final String IDENTIFICADOR_UNICO = "id";
-	private static final String IP_BANCO_DADOS = "63.142.254.59";
-	private static final String NOME_BANCO_DADOS = "saep";
 
 	private MongoHelper mongoHelper;
 
@@ -27,7 +28,7 @@ public class ResolucaoRepositoryJson implements ResolucaoRepository {
 	}
 
 	public ResolucaoRepositoryJson() {
-		this.mongoHelper = new MongoHelper(new MongoClient(IP_BANCO_DADOS), NOME_BANCO_DADOS);
+		this.mongoHelper = new MongoHelper(new ArquivoHelper(AMBIENTE_PRODUCAO));
 	}
 
     public Resolucao byId(String id) {

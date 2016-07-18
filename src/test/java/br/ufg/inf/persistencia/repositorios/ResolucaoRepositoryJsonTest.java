@@ -1,19 +1,19 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
+import br.ufg.inf.persistencia.helpers.ArquivoHelper;
 import br.ufg.inf.persistencia.helpers.MongoHelper;
-import com.mongodb.MongoClient;
 import org.junit.Test;
 
 import java.util.*;
 
+import static br.ufg.inf.persistencia.modelos.ArquivoConfiguracao.AMBIENTE_TESTE;
 import static org.junit.Assert.*;
 
 public class ResolucaoRepositoryJsonTest {
 
-	private static final String IP_BANCO_DADOS = "63.142.254.59";
-	private static final String NOME_BANCO_DADOS = "saep-teste";
-	private MongoHelper mongoHelper = new MongoHelper(new MongoClient(IP_BANCO_DADOS), NOME_BANCO_DADOS);
+	private ArquivoHelper arquivoHelper = new ArquivoHelper(AMBIENTE_TESTE);
+	private MongoHelper mongoHelper = new MongoHelper(arquivoHelper);
 	private ResolucaoRepositoryJson resolucaoRepositoryJson = new ResolucaoRepositoryJson(mongoHelper);
 
     @Test

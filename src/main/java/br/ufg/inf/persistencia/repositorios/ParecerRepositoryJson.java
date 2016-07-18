@@ -1,10 +1,13 @@
 package br.ufg.inf.persistencia.repositorios;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
+import br.ufg.inf.persistencia.helpers.ArquivoHelper;
 import br.ufg.inf.persistencia.helpers.GsonHelper;
 import br.ufg.inf.persistencia.helpers.MongoHelper;
 import com.mongodb.MongoClient;
 import org.bson.Document;
+
+import static br.ufg.inf.persistencia.modelos.ArquivoConfiguracao.AMBIENTE_PRODUCAO;
 
 public class ParecerRepositoryJson implements ParecerRepository {
 	
@@ -15,8 +18,6 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	private static final String NOTAS_PARECER = "notas";
 	private static final String AVALIAVEL_ORIGINAL = "original";
 	private static final String IDENTIFICADOR_UNICO = "id";
-	private static final String IP_BANCO_DADOS = "63.142.254.59";
-	private static final String NOME_BANCO_DADOS = "saep";
 
 	private MongoHelper mongoHelper;
 	
@@ -25,7 +26,7 @@ public class ParecerRepositoryJson implements ParecerRepository {
 	}
 
 	public ParecerRepositoryJson() {
-		this.mongoHelper = new MongoHelper(new MongoClient(IP_BANCO_DADOS), NOME_BANCO_DADOS);
+		this.mongoHelper = new MongoHelper(new ArquivoHelper(AMBIENTE_PRODUCAO));
 	}
 
 	public void adicionaNota(String id, Nota nota) {
